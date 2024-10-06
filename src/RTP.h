@@ -7,20 +7,27 @@
 #ifndef RANDOM_TREE_H
 #define RANDOM_TREE_H
 
-
+#include "ompl/datastructures/NearestNeighbors.h"
 #include "ompl/geometric/planners/PlannerIncludes.h"
-
 
 namespace ompl
 {
     namespace geometric
     {
-        class RTP  : public base::Planner
+        /** \brief Rapidly-exploring Random Trees */
+        class RTP : public base::Planner
         {
         public:
+            /** \brief Constructor */
             RTP(const base::SpaceInformationPtr &si);
 
-            base::PlannerStatus solve(const base::PlannerTerminationCondition & ptc);
+            ~RTP() override;
+
+            void getPlannerData(base::PlannerData &data) const override;
+
+            base::PlannerStatus solve(const base::PlannerTerminationCondition &ptc) override;
+
+            void clear() override;
 
             /** \brief Set the goal bias
 
@@ -41,7 +48,20 @@ namespace ompl
             {
                 return goalBias_;
             }
-        
+
+            /** \brief Set a different nearest neighbors datastructure */
+            template <template <typename T> class NN>
+            void setNearestNeighbors()
+            {
+                if (nn_ && nn_->size() != 0)
+                    OMPL_WARN("Calling setNearestNeighbors will clear all states.");
+                clear();
+                nn_ = std::make_shared<NN<Motion *>>();
+                setup();
+            }
+
+            void setup() override;
+
         protected:
             /** \brief Representation of a motion
 
@@ -66,18 +86,35 @@ namespace ompl
                 Motion *parent{nullptr};
             };
 
-            RNG rng_;
+            /** \brief Free the memory allocated by this planner */
+            void freeMemory();
+
+            /** \brief Compute distance between motions (actually distance between contained states) */
+            double distanceFunction(const Motion *a, const Motion *b) const
+            {
+                return si_->distance(a->state, b->state);
+            }
+
+            /** \brief State sampler */
             base::StateSamplerPtr sampler_;
+
+            /** \brief A nearest-neighbors datastructure containing the tree of motions */
+            std::shared_ptr<NearestNeighbors<Motion *>> nn_;
+
+            /** \brief The fraction of time the goal is picked as the state to expand towards (if such a state is
+             * available) */
             double goalBias_{.05};
 
-            /** \brief A list of every motion in the tree so that we can easily pick a random one. */
-            std::vector<Motion *> motions_;
+            /** \brief The maximum length of a motion to be added to a tree */
+            double maxDistance_{0.};
 
-            /** \brief The root of the tree of motions. */
-            Motion* rootMotion_;
+            /** \brief The random number generator */
+            RNG rng_;
+
+            /** \brief The most recent goal motion.  Used for PlannerData computation */
+            Motion *lastGoalMotion_{nullptr};
         };
-    
-    }  // namespace geometric
-}  // namespace ompl
+    }
+}
 
 #endif
