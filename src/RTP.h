@@ -43,7 +43,38 @@ namespace ompl
             }
         
         protected:
+            /** \brief Representation of a motion
+
+                This only contains pointers to parent motions as we
+                only need to go backwards in the tree. */
+            class Motion
+            {
+            public:
+                Motion() = default;
+
+                /** \brief Constructor that allocates memory for the state */
+                Motion(const base::SpaceInformationPtr &si) : state(si->allocState())
+                {
+                }
+
+                ~Motion() = default;
+
+                /** \brief The state contained by the motion */
+                base::State *state{nullptr};
+
+                /** \brief The parent motion in the exploration tree */
+                Motion *parent{nullptr};
+            };
+
+            RNG rng_;
+            base::StateSamplerPtr sampler_;
             double goalBias_{.05};
+
+            /** \brief A list of every motion in the tree so that we can easily pick a random one. */
+            std::vector<Motion *> motions_;
+
+            /** \brief The root of the tree of motions. */
+            Motion* rootMotion_;
         };
     
     }  // namespace geometric
