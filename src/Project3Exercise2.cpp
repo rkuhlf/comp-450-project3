@@ -22,38 +22,33 @@ void planPoint(const std::vector<Rectangle> &obstacles)
 
     auto ss = std::make_shared<RealVectorStateSpace>(2);
 
-    // RealVectorBounds bounds(2);
-    // bounds.setLow(-3);
-    // bounds.setHigh(3);
-    // ss->setBounds(bounds);
+    RealVectorBounds bounds(2);
+    bounds.setLow(-10);
+    bounds.setHigh(10);
+    ss->setBounds(bounds);
 
     auto si = std::make_shared<SpaceInformation>(ss);
-    // si->setStateValidityChecker([](const State *) { return true; });
-    // si->setup();
+    si->setStateValidityChecker([](const State *) { return true; });
+    si->setup();
 
-    // ScopedState<> start(ss), goal(ss);
-    // start.random();
-    // goal.random();
-    // auto pdef = std::make_shared<ProblemDefinition>(si);
-    // pdef->setStartAndGoalStates(start, goal);
+    ScopedState<> start(ss), goal(ss);
+    start.random();
+    goal.random();
+    auto pdef = std::make_shared<ProblemDefinition>(si);
+    pdef->setStartAndGoalStates(start, goal);
 
     RTP planner(si);
-    // planner.setProblemDefinition(pdef);
-    // planner.setGoalBias(0.2);
+    planner.setProblemDefinition(pdef);
+    planner.setGoalBias(0.2);
 
-    // std::chrono::steady_clock clock;
-    // auto tic = clock.now();
-    // PlannerStatus solved = planner.Planner::solve(60.0);
-    // auto toc = clock.now();
-    // std::chrono::duration<double> diff = toc - tic;
-    // std::cout << "Finished in " << (toc - tic).count() / 1.0e6 << "ms" << std::endl;
+    PlannerStatus solved = planner.Planner::solve(5.0);
 
-    // if (solved) {
-    //     std::cout << "Found solution:" << std::endl;
-    //     pdef->getSolutionPath()->print(std::cout);
-    // } else {
-    //     std::cout << "No solution found" << std::endl;
-    // }
+    if (solved) {
+        std::cout << "Found solution:" << std::endl;
+        pdef->getSolutionPath()->print(std::cout);
+    } else {
+        std::cout << "No solution found" << std::endl;
+    }
 }
 
 void planBox(const std::vector<Rectangle> &obstacles)
@@ -67,10 +62,7 @@ void makeEnvironment1(std::vector<Rectangle> &obstacles)
 {
     std::cout << "using environment1\n";
 
-    Rectangle r = {0, 0, 0, 0};
-    obstacles.push_back(r);
-
-    // TODO: Fill in the vector of rectangles with your first environment.
+    obstacles.push_back(Rectangle{0, 0, 1, 1});
 }
 
 void makeEnvironment2(std::vector<Rectangle> &obstacles)
@@ -97,7 +89,9 @@ int main(int /* argc */, char ** /* argv */)
     do
     {
         std::cout << "In Environment: " << std::endl;
-        std::cout << " (1) TODO" << std::endl;
+        // TODO: Make this a general environment.
+        std::cout << " (1) One square" << std::endl;
+        // TODO: Make this a narrow passageway.
         std::cout << " (2) TODO" << std::endl;
 
         std::cin >> choice;
