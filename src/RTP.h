@@ -7,17 +7,20 @@
 #ifndef RANDOM_TREE_H
 #define RANDOM_TREE_H
 
+
+#include "ompl/geometric/planners/PlannerIncludes.h"
+
+
 namespace ompl
 {
     namespace geometric
     {
-        // TODO: Implement RTP as described
-
-        class RTP // : public base::Planner
+        class RTP  : public base::Planner
         {
         public:
-            // RTP(const base::SpaceInformationPtr &si)
-            RTP();
+            RTP(const base::SpaceInformationPtr &si);
+
+            base::PlannerStatus solve(const base::PlannerTerminationCondition & ptc);
         };
 
     }  // namespace geometric
