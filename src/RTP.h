@@ -1,7 +1,7 @@
 ///////////////////////////////////////
 // COMP/ELEC/MECH 450/550
 // Project 3
-// Authors: FILL ME OUT!!
+// Authors: Riley Kuhlman, Eric Jia
 //////////////////////////////////////
 
 #ifndef RANDOM_TREE_H
@@ -13,9 +13,12 @@ namespace ompl
     {
         // TODO: Implement RTP as described
 
-        // class RTP : public base::Planner
-        // {
-        // };
+        class RTP // : public base::Planner
+        {
+        public:
+            // RTP(const base::SpaceInformationPtr &si)
+            RTP();
+        };
 
     }  // namespace geometric
 }  // namespace ompl

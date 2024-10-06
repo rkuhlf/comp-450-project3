@@ -1,7 +1,7 @@
 ///////////////////////////////////////
 // COMP/ELEC/MECH 450/550
 // Project 3
-// Authors: FILL ME OUT!!
+// Authors: Riley Kuhlman, Eric Jia
 //////////////////////////////////////
 
 #include <iostream>
@@ -12,23 +12,33 @@
 // Your random tree planner
 #include "RTP.h"
 
+// TODO: have some global variables of the planner and environment?
+// Or should we just return them from planPoint... it says try to avoid modifying the skeleton :/
+
 void planPoint(const std::vector<Rectangle> &obstacles)
 {
+    std::cout << "planning Point\n";
     // TODO: Use your implementation of RTP to plan for a point robot.
 }
 
 void planBox(const std::vector<Rectangle> &obstacles)
 {
+    std::cout << "planning Box\n";
+
     // TODO: Use your implementation of RTP to plan for a rotating square robot.
 }
 
 void makeEnvironment1(std::vector<Rectangle> &obstacles)
 {
+    std::cout << "using environment1\n";
+
     // TODO: Fill in the vector of rectangles with your first environment.
 }
 
 void makeEnvironment2(std::vector<Rectangle> &obstacles)
 {
+    std::cout << "using environment2\n";
+
     // TODO: Fill in the vector of rectangles with your second environment.
 }
 
