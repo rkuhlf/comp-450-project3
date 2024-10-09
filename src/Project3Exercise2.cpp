@@ -136,7 +136,128 @@ void planBox(const std::vector<Rectangle> &obstacles)
 {
     std::cout << "planning Box\n";
 
-    // TODO: Use your implementation of RTP to plan for a rotating square robot.
+    auto ss = std::make_shared<SE2StateSpace>();
+
+    RealVectorBounds bounds(2);
+    bounds.setLow(-10);
+    bounds.setHigh(10);
+    ss->setBounds(bounds);
+
+    auto si = std::make_shared<SpaceInformation>(ss);
+    si->setStateValidityChecker([obstacles](const State * state) {
+        double squareLen = 0.5;
+        return isValidStateSquare(state, squareLen, obstacles);
+    });
+    si->setup();
+
+    ScopedState<> start(ss), goal(ss);
+    bool validStatesFound = false;
+    while (!validStatesFound) {
+        // Generate random start and goal states
+        start.random();
+        goal.random();
+
+        // Check if both states are valid
+        if (si->isValid(start.get()) && si->isValid(goal.get())) {
+            const auto *startState = start.get()->as<SE2StateSpace::StateType>();
+            const auto *goalState = goal.get()->as<SE2StateSpace::StateType>();
+
+            std::cout << "Generated Start: ("
+                    << startState->getX() << ", "  // x
+                    << startState->getY() << ", "  // y
+                    << startState->getYaw() << ")" <<  // yaw
+                    std::endl;
+
+            std::cout << "Generated Goal: ("
+                    << goalState->getX() << ", "    // x
+                    << goalState->getY() << ", "    // y
+                    << goalState->getYaw() << ")" <<   // yaw
+                    std::endl;
+            validStatesFound = true;
+        } else {
+            std::cout << "Invalid start or goal state, regenerating..." << std::endl;
+        }
+    }
+
+    auto pdef = std::make_shared<ProblemDefinition>(si);
+    pdef->setStartAndGoalStates(start, goal);
+
+    RTP planner(si);
+    planner.setProblemDefinition(pdef);
+    planner.setGoalBias(0.15);
+
+    PlannerStatus solved = planner.Planner::solve(5.0);
+
+
+    if (solved) {
+        std::cout << "Found solution:" << std::endl;
+        pdef->getSolutionPath()->print(std::cout);
+
+        PlannerData plannerData(si);
+        planner.getPlannerData(plannerData);
+
+        if (SERIALIZE_DATA) {
+            std::cout << "OBSTACLES" << std::endl;
+            for (const Rectangle& obstacle : obstacles) {
+                std::cout << "[" << obstacle.x << "," << obstacle.y << "," << obstacle.width << "," << obstacle.height << "]" << std::endl;
+            }
+
+            std::cout << "VERTICES" << std::endl;
+
+            for (unsigned int i = 0; i < plannerData.numVertices(); ++i)
+            {
+                const State *state = plannerData.getVertex(i).getState();
+                const auto *vectorState = state->as<SE2StateSpace::StateType>();
+
+                double x = vectorState->getX();
+                double y = vectorState->getY();
+                std::cout << "(" << x << "," << y << ")" << std::endl;
+            }
+
+            std::cout << "GOALS" << std::endl;
+            for (unsigned int i = 0; i < plannerData.numGoalVertices(); ++i)
+            {
+                const State *state = plannerData.getGoalVertex(i).getState();
+                const auto *vectorState = state->as<SE2StateSpace::StateType>();
+
+                double x = vectorState->getX();
+                double y = vectorState->getY();
+                std::cout << "(" << x << "," << y << ")" << std::endl;
+            }
+
+            std::cout << "STARTS" << std::endl;
+            for (unsigned int i = 0; i < plannerData.numStartVertices(); ++i)
+            {
+                const State *state = plannerData.getStartVertex(i).getState();
+                const auto *vectorState = state->as<SE2StateSpace::StateType>();
+
+                double x = vectorState->getX();
+                double y = vectorState->getY();
+                std::cout << "(" << x << "," << y << ")" << std::endl;
+            }
+
+            std::cout << "EDGES" << std::endl;
+
+            // Loop over each edge and update the matrix
+            for (unsigned int i = 0; i < plannerData.numVertices(); ++i)
+            {
+                for (unsigned int j = 0; j < plannerData.numVertices(); ++j)
+                {
+                    if (plannerData.edgeExists(i, j))
+                    {
+                        std::cout << 1 << " ";
+                    } else {
+                        std::cout << 0 << " ";
+                    }
+                }
+
+                std::cout << std::endl;
+            }
+
+        }
+    } else {
+        std::cout << "No solution found" << std::endl;
+    }
 }
 
 void makeEnvironment1(std::vector<Rectangle> &obstacles)
