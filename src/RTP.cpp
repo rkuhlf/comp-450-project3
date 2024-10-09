@@ -80,15 +80,16 @@ ompl::base::PlannerStatus ompl::geometric::RTP::solve(const base::PlannerTermina
     }
 
     // TODO: Go back to having arbitrarily many starting states.
-    const base::State *st = pis_.nextStart();
-    if (!st) {
-        OMPL_ERROR("%s: There are no valid initial states!", getName().c_str());
-        return base::PlannerStatus::INVALID_START;
+    while (const base::State *st = pis_.nextStart())
+    {
+        if (!st) {
+            OMPL_ERROR("%s: There are no valid initial states!", getName().c_str());
+            return base::PlannerStatus::INVALID_START;
+        }
+        auto *motion = new Motion(si_);
+        si_->copyState(motion->state, st);
+        nn_->add(motion);
     }
-    
-    auto *motion = new Motion(si_);
-    si_->copyState(motion->state, st);
-    nn_->add(motion);
 
     if (!sampler_)
         sampler_ = si_->allocStateSampler();
