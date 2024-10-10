@@ -10,6 +10,4 @@ Presumably Planner is a field that's public in the Planner class.
 TODOs:
 - Switch out the nn data structure.
 - Delete the random stuff that's left over from RRT.
-- Implement square and point robot being different.
-- Implement a second environment.
 - Do the items.
