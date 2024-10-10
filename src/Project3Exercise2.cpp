@@ -275,7 +275,10 @@ void makeEnvironment2(std::vector<Rectangle> &obstacles)
 {
     std::cout << "using environment2\n";
 
-    // TODO: Fill in the vector of rectangles with your second environment.
+    obstacles.push_back(Rectangle{-10, -3, 8, 6});
+    obstacles.push_back(Rectangle{2, -3, 8, 6});
+    obstacles.push_back(Rectangle{-2, -10, 3, 5});
+    obstacles.push_back(Rectangle{-1, 7, 5, 2});
 }
 
 int main(int /* argc */, char ** /* argv */)
@@ -298,7 +301,7 @@ int main(int /* argc */, char ** /* argv */)
         // TODO: Make this a general environment.
         std::cout << " (1) One square" << std::endl;
         // TODO: Make this a narrow passageway.
-        std::cout << " (2) TODO" << std::endl;
+        std::cout << " (2) Corridors" << std::endl;
 
         std::cin >> choice;
     } while (choice < 1 || choice > 2);
