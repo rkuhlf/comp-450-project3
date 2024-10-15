@@ -11,6 +11,7 @@ all: Project3Exercise2 Project3Exercise3
 clean:
 	rm -f *.o
 	rm -f Project3Exercise2 Project3Exercise3
+	rm -f *.console
 
 %.o: src/%.cpp
 	$(CXX) -c $(CXX_FLAGS) $(INCLUDE_FLAGS) $< -o $@

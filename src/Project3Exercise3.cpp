@@ -21,7 +21,7 @@ void benchmarkApartment()
     ompl::app::SE3RigidBodyPlanning setup;
 
     // load robot and environment
-    std::string dir_path = "/usr/local/share/ompl/resources/3D";
+    std::string dir_path = "./resources";
     std::string robot_fname = dir_path + "/Apartment_robot.dae";
     std::string env_fname = dir_path + "/Apartment_env.dae";
     setup.setRobotMesh(robot_fname);
@@ -30,9 +30,9 @@ void benchmarkApartment()
     // set start and goal
     ompl::base::ScopedState<ompl::base::SE3StateSpace> start(setup.getSpaceInformation());
     ompl::base::ScopedState<ompl::base::SE3StateSpace> goal(start);
-    start->setXYZ(-4.96, -40.62, 70.57);
+    start->setXYZ(241.81, 106.15, 36.46);
     start->rotation().setIdentity();
-    goal->setXYZ(200.49, -40.62, 70.57);
+    goal->setXYZ(-31.19, -99.85, 36.46);
     goal->rotation().setIdentity();
 
     setup.setStartAndGoalStates(start, goal);
@@ -51,8 +51,8 @@ void benchmarkApartment()
 
     // request
     ompl::tools::Benchmark::Request req;
-    req.maxTime = 10.0;
-    req.maxMem = 200.0;
+    req.maxTime = 60.0;
+    req.maxMem = 1000.0;
     req.runCount = 50;
     req.displayProgress = true;
     b.benchmark(req);
@@ -76,9 +76,9 @@ void benchmarkHome()
     // set start and goal
     ompl::base::ScopedState<ompl::base::SE3StateSpace> start(setup.getSpaceInformation());
     ompl::base::ScopedState<ompl::base::SE3StateSpace> goal(start);
-    start->setXYZ(-4.96, -40.62, 70.57);
+    start->setXYZ(252.95, -214.95, 46.19);
     start->rotation().setIdentity();
-    goal->setXYZ(200.49, -40.62, 70.57);
+    goal->setXYZ(262.95, 75.05, 46.19);
     goal->rotation().setIdentity();
 
     setup.setStartAndGoalStates(start, goal);
@@ -89,7 +89,7 @@ void benchmarkHome()
     setup.print();
 
     // benchmarking
-    ompl::tools::Benchmark b(setup, "benchmarking apartment");
+    ompl::tools::Benchmark b(setup, "benchmarking home");
     b.addPlanner(ompl::base::PlannerPtr(new ompl::geometric::RTP(setup.getSpaceInformation())));
     b.addPlanner(ompl::base::PlannerPtr(new ompl::geometric::PRM(setup.getSpaceInformation())));
     b.addPlanner(ompl::base::PlannerPtr(new ompl::geometric::EST(setup.getSpaceInformation())));
@@ -97,8 +97,8 @@ void benchmarkHome()
 
     // request
     ompl::tools::Benchmark::Request req;
-    req.maxTime = 10.0;
-    req.maxMem = 200.0;
+    req.maxTime = 60.0;
+    req.maxMem = 1000.0;
     req.runCount = 50;
     req.displayProgress = true;
     b.benchmark(req);
