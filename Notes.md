@@ -22,6 +22,9 @@ Generated Goal: (-3.85608,5.30082)
 Generated Start: (2.29839, -8.14192, -2.23593)\
 Generated Goal: (6.1286, 9.96771, -2.33564)
 
+"benchmark(apartment).db" is a benchmark run on the apartment map (60 seconds, 1000 MB limit)
+"benchmark(home).db" is a benchmark run on the home map (60 seconds, 1000 MB limit)
+"benchmark(home2).db" is a benchmark run on the home map again (90 seconds, 1000 MB limit) because the previous benchmark generated no exact solutions for RTP (this one is not better)
 
 TODOs:
 - Switch out the nn data structure.

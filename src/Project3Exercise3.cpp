@@ -97,7 +97,7 @@ void benchmarkHome()
 
     // request
     ompl::tools::Benchmark::Request req;
-    req.maxTime = 60.0;
+    req.maxTime = 90.0;
     req.maxMem = 1000.0;
     req.runCount = 50;
     req.displayProgress = true;
