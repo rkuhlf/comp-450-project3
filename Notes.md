@@ -26,7 +26,3 @@ Generated Goal: (6.1286, 9.96771, -2.33564)
 "benchmark(home).db" is a benchmark run on the home map (60 seconds, 1000 MB limit)
 "benchmark(home2).db" is a benchmark run on the home map again (90 seconds, 1000 MB limit) because the previous benchmark generated no exact solutions for RTP (this one is not better)
 
-TODOs:
-- Switch out the nn data structure.
-- Delete the random stuff that's left over from RRT.
-- Do the items.

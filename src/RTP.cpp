@@ -30,8 +30,7 @@ void ompl::geometric::RTP::clear()
     Planner::clear();
     sampler_.reset();
     freeMemory();
-    if (nn_)
-        nn_->clear();
+
     lastGoalMotion_ = nullptr;
 }
 
@@ -40,24 +39,15 @@ void ompl::geometric::RTP::setup()
     Planner::setup();
     tools::SelfConfig sc(si_, getName());
     sc.configurePlannerRange(maxDistance_);
-
-    if (!nn_)
-        nn_.reset(tools::SelfConfig::getDefaultNearestNeighbors<Motion *>(this));
-    nn_->setDistanceFunction([this](const Motion *a, const Motion *b) { return distanceFunction(a, b); });
 }
 
 void ompl::geometric::RTP::freeMemory()
 {
-    if (nn_)
+    for (auto &motion : nodes_)
     {
-        std::vector<Motion *> motions;
-        nn_->list(motions);
-        for (auto &motion : motions)
-        {
-            if (motion->state != nullptr)
-                si_->freeState(motion->state);
-            delete motion;
-        }
+        if (motion->state != nullptr)
+            si_->freeState(motion->state);
+        delete motion;
     }
 }
 
@@ -79,7 +69,6 @@ ompl::base::PlannerStatus ompl::geometric::RTP::solve(const base::PlannerTermina
         return base::PlannerStatus::INVALID_GOAL;
     }
 
-    // TODO: Go back to having arbitrarily many starting states.
     while (const base::State *st = pis_.nextStart())
     {
         if (!st) {
@@ -88,7 +77,7 @@ ompl::base::PlannerStatus ompl::geometric::RTP::solve(const base::PlannerTermina
         }
         auto *motion = new Motion(si_);
         si_->copyState(motion->state, st);
-        nn_->add(motion);
+        nodes_.push_back(motion);
     }
 
     if (!sampler_)
@@ -106,26 +95,26 @@ ompl::base::PlannerStatus ompl::geometric::RTP::solve(const base::PlannerTermina
     while (!ptc)
     {
         /* Get random state in the tree */
-        int index = rng_.uniformInt(0, nn_->size() - 1);
-        std::vector<Motion *> motions;
-        nn_->list(motions);
-        Motion *nmotion = motions[index];
+        int index = rng_.uniformInt(0, nodes_.size() - 1);
+        Motion *nmotion = nodes_[index];
         
         /* sample random state (with goal biasing) */
         if (rng_.uniform01() < goalBias_ && goal_s->canSample())
             goal_s->sampleGoal(rstate);
         else
             sampler_->sampleUniform(rstate);
-
+        
+        // If it's a valid state, we add it to the tree.
         if (si_->checkMotion(nmotion->state, rstate))
         {
             auto *motion = new Motion(si_);
             si_->copyState(motion->state, rstate);
             motion->parent = nmotion;
-            nn_->add(motion);
+            nodes_.push_back(motion);
 
             nmotion = motion;
 
+            // We check if we reached the goal.
             double dist = 0.0;
             bool sat = goal->isSatisfied(nmotion->state, &dist);
             if (sat)
@@ -175,7 +164,7 @@ ompl::base::PlannerStatus ompl::geometric::RTP::solve(const base::PlannerTermina
         si_->freeState(rmotion->state);
     delete rmotion;
 
-    OMPL_INFORM("%s: Created %u states", getName().c_str(), nn_->size());
+    OMPL_INFORM("%s: Created %u states", getName().c_str(), nodes_.size());
 
     return {solved, approximate};
 }
@@ -184,14 +173,10 @@ void ompl::geometric::RTP::getPlannerData(base::PlannerData &data) const
 {
     Planner::getPlannerData(data);
 
-    std::vector<Motion *> motions;
-    if (nn_)
-        nn_->list(motions);
-
     if (lastGoalMotion_ != nullptr)
         data.addGoalVertex(base::PlannerDataVertex(lastGoalMotion_->state));
 
-    for (auto &motion : motions)
+    for (auto &motion : nodes_)
     {
         if (motion->parent == nullptr)
             data.addStartVertex(base::PlannerDataVertex(motion->state));
