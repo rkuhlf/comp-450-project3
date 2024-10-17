@@ -69,15 +69,18 @@ ompl::base::PlannerStatus ompl::geometric::RTP::solve(const base::PlannerTermina
         return base::PlannerStatus::INVALID_GOAL;
     }
 
+    // Add every starting point in the problem definition to our tree.
     while (const base::State *st = pis_.nextStart())
     {
-        if (!st) {
-            OMPL_ERROR("%s: There are no valid initial states!", getName().c_str());
-            return base::PlannerStatus::INVALID_START;
-        }
         auto *motion = new Motion(si_);
         si_->copyState(motion->state, st);
         nodes_.push_back(motion);
+    }
+
+    // If we didn't add anything to the nodes when we added all of the starts, we can't continue the algorithm.
+    if (nodes_.empty()) {
+        OMPL_ERROR("%s: There are no valid initial states!", getName().c_str());
+        return base::PlannerStatus::INVALID_START;
     }
 
     if (!sampler_)

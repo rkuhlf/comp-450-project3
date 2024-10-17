@@ -13,7 +13,6 @@
 #include <ompl/geometric/planners/rrt/RRT.h>
 #include <ompl/tools/benchmark/Benchmark.h>
 
-// Your random tree planner
 #include "RTP.h"
 
 void benchmarkApartment()
